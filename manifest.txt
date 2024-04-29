@@ -1,0 +1,5 @@
+sample-id,absolute-filepath,direction
+S0706,$PWD/Subset_sample/S0706_L001_R1_001.fastq.gz,forward
+S0706,$PWD/Subset_sample/S0706_L001_R2_001.fastq.gz,reverse
+S0709,$PWD/Subset_sample/S0709_L001_R1_001.fastq.gz,forward
+S0709,$PWD/Subset_sample/S0709_L001_R2_001.fastq.gz,reverse

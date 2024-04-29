@@ -1,0 +1,64 @@
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path manifest.txt \
+  --output-path paired-end.qza \
+  --input-format PairedEndFastqManifestPhred33
+
+qiime cutadapt trim-paired \
+  --i-demultiplexed-sequences paired-end.qza \
+  --p-cores 12 \
+  --p-front-f GGWACWGGWTGAACWGTWTAYCCYCC \
+  --p-front-r TAAACYTCAGGRTGACCRAARAAYCA \
+  --o-trimmed-sequences demux-trimmed.qza
+
+qiime demux summarize \
+  --i-data demux-trimmed.qza \
+  --o-visualization demux-trimmed.qzv
+
+qiime dada2 denoise-paired \
+  --i-demultiplexed-seqs demux-trimmed.qza \
+  --p-trim-left-f 0 \
+  --p-trim-left-r 0 \
+  --p-trunc-len-f 180 \
+  --p-trunc-len-r 190 \
+  --o-table table-dada2.qza \
+  --o-representative-sequences rep-seqs-dada2.qza \
+  --o-denoising-stats denoising-stats-dada2.qza \
+  --p-n-threads 24
+
+#Cluter 97% OTU
+qiime vsearch cluster-features-de-novo \
+  --i-table table-dada2.qza \
+  --i-sequences rep-seqs-dada2.qza \
+  --p-perc-identity 0.97 \
+  --o-clustered-table merged-table-dada2-clustering.qza \
+  --o-clustered-sequences merged-rep-seqs-dada2-clustering.qza
+
+qiime feature-table summarize \
+  --i-table merged-table-dada2-clustering.qza \
+  --o-visualization merged-table-dada2-clustering.qzv
+
+qiime feature-table tabulate-seqs \
+  --i-data merged-rep-seqs-dada2-clustering.qza \
+  --o-visualization merged-rep-seqs-dada2-clustering.qzv 
+
+qiime feature-classifier classify-consensus-blast \
+  --i-query merged-rep-seqs-dada2-clustering.qza \
+  --i-reference-taxonomy MIDORI_LONGEST_20180221_COI_taxonomy.qza \
+  --i-reference-reads MIDORI_LONGEST_20180221_COI.qza \
+  --o-classification taxonomy.qza \
+  --output-dir test
+
+qiime metadata tabulate \
+  --m-input-file taxonomy.qza \
+  --o-visualization taxonomy.qzv
+
+qiime tools export \
+  --input-path merged-table-dada2-clustering.qza \
+  --output-path statistic
+
+biom convert -i statistic/feature-table.biom -o statistic/otu_table_97_COI.txt --to-tsv
+
+qiime tools export \
+  --input-path taxonomy.qza \
+  --output-path statistic
