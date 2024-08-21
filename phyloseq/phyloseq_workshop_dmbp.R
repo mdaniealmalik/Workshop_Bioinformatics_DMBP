@@ -47,7 +47,7 @@ workshop
 workshop_clean = filter_taxa(workshop, function(x) sum(x) > 1, TRUE)
 workshop_clean
 
-ssum <- sum(sample_sums(workshop_clean)); ssum
+ssum <- sum(sample_sums(workshop)); ssum
 
 #subset taxa
 workshop_clean_1 <- workshop_clean%>% subset_taxa(
@@ -75,7 +75,7 @@ plot(ranacapa::ggrare(workshop_clean_3, color = "InputFileName", se = FALSE, par
 #----------------------
 ### 1. Stacked Barplot (Class)
 
-workshop_phylum <- workshop_clean_3 %>%
+workshop_class <- workshop_clean_3 %>%
   tax_glom(taxrank = "Class") %>%                     # agglomerate at phylum level
   transform_sample_counts(function(x) {x/sum(x)} ) %>% # Transform to rel. abundance
   psmelt() %>%                                         # Melt to long format
@@ -84,10 +84,10 @@ workshop_phylum <- workshop_clean_3 %>%
 
 phylum_colors <- c("#FFFF00","#CBD588","#5F7FC7","orange","#DA5724","#CD9BCD","#AD6F3B","#990000","#673770","#D14285","#C84248","#8569D5","#5E738F","#599861")
 
-ggplot(workshop_phylum, aes(x = Sample_Origin, y = Abundance, fill = Class)) + 
+ggplot(workshop_class, aes(x = Sample_Origin, y = Abundance, fill = Class)) + 
   geom_bar(stat = "identity", position = "fill") +
   scale_fill_manual(values = phylum_colors) +
-  theme(axis.text.x = element_text(size=7, angle=0, hjust=0.5, vjust=0)) +
+  theme(axis.text.x = element_text(size=18, angle=0, hjust=0.5, vjust=0)) +
   guides(fill = guide_legend(reverse = FALSE, keywidth = 1, keyheight = 1)) +
   theme(legend.position="right") +
   ylab("Taxa Abundance")
